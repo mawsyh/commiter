@@ -1,0 +1,26 @@
+{
+  "name": "commiter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mawsyh/commiter.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mawsyh/commiter/issues"
+  },
+  "homepage": "https://github.com/mawsyh/commiter#readme",
+  "dependencies": {
+    "chalk": "^5.2.0",
+    "fs": "^0.0.1-security",
+    "inquirer": "^9.1.5"
+  }
+}

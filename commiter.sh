@@ -4,12 +4,12 @@ _() {
   read -p "Enter your Github username: " USERNAME
   read -p "Enter yout Github Access token: " ACCESS_TOKEN
   read -p "Enter yout Github repository name: " REPOSITORY
-  read -p "Enter start year [YYYY]: " START_YEAR
-  read -p "Enter start month [MM]: " START_MONTH
-  read -p "Enter start day [DD]: " START_DAY
-  read -p "Enter end year [YYYY]: " END_YEAR
-  read -p "Enter end month [MM]: " END_MONTH
-  read -p "Enter end day [DD]: " END_DAY
+  read -p "Enter starting year [YYYY]: " START_YEAR
+  read -p "Enter starting month [MM]: " START_MONTH
+  read -p "Enter starting day [DD]: " START_DAY
+  read -p "Enter ending year [YYYY]: " END_YEAR
+  read -p "Enter ending month [MM]: " END_MONTH
+  read -p "Enter ending day [DD]: " END_DAY
 
   [ -z "$USERNAME" ] && exit 1
   [ -z "$ACCESS_TOKEN" ] && exit 1
