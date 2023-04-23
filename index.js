@@ -83,7 +83,9 @@ for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
     execSync("git add .");
     execSync(`GIT_AUTHOR_DATE="${isoString}"`);
     execSync(`GIT_COMMITTER_DATE="${isoString}"`);
-    execSync(`git commit -m "committed on ${isoString}"`);
+    execSync(`git commit -m "committed on ${isoString}"`, (err) => {
+        console.log(err)
+    });
 }
 
 
