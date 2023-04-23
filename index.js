@@ -80,13 +80,10 @@ for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
     await writeFile('README.md', content, (err) => {
         if (err) throw err;
     });
-    const command = `
-    git add .
-    GIT_AUTHOR_DATE="${isoString}" \
-    GIT_COMMITTER_DATE="${isoString}" \
-    git commit -m "committed on ${isoString}"
-    `;
-    execSync(command);
+    execSync("git add .");
+    execSync(`GIT_AUTHOR_DATE="${isoString}"`);
+    execSync(`GIT_COMMITTER_DATE="${isoString}"`);
+    execSync(`git commit -m "committed on ${isoString}"`);
 }
 
 
