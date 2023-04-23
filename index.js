@@ -72,6 +72,9 @@ const answer = await inquirer.prompt([
     },
 ])
 
+await mkdirSync(answer.repository);
+process.chdir(answer.repository);
+
 const startDate = new Date(answer.startYear, answer.startMonth - 1, answer.startDay);
 const endDate = new Date(answer.endYear, answer.endMonth - 1, answer.endDay);
 
@@ -84,13 +87,11 @@ for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
     execSync(`GIT_AUTHOR_DATE="${isoString}"`);
     execSync(`GIT_COMMITTER_DATE="${isoString}"`);
     execSync(`git commit -m "committed on ${isoString}"`, (err) => {
-        console.log(err)
+        console.log("Error happend:", err)
     });
 }
 
-
-await mkdirSync(answer.repository);
-process.chdir(answer.repository);
+console.log(process.cwd());
 execSync(`git remote add origin https://${answer.accessToken}@github.com/${answer.username}/${answer.repository}.git`);
 execSync('git branch -M main');
 execSync('git push -u origin main -f');
