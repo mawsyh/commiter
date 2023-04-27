@@ -11,7 +11,7 @@ Commit on any date you desire
 Run the following script
 
 ```bash
-$ sh -c "$(curl -fsSL https://raw.githubusercontent.com/mawsyh/commiter/master/commiter.sh)"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/mawsyh/commiter/master/commiter.sh)"
 ```
 
 Enter you GitHub username and access token and repo name the date and enjoy
