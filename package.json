@@ -1,0 +1,29 @@
+{
+  "name": "git-commiter",
+  "version": "1.0.1",
+  "description": "Automate Git operations",
+  "main": "commiter.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mawsyh/commiter"
+  },
+  "keywords": [
+    "github",
+    "commit",
+    "commiter",
+    "time commiter"
+  ],
+  "scripts": {
+    "start": "node commiter.js"
+  },
+  "author": "mawsyh",
+  "license": "Apache-2.0",
+  "private": false,
+  "dependencies": {
+    "rimraf": "^5.0.5"
+  },
+  "files": [
+    "README.md",
+    "commiter.js"
+  ]
+}
