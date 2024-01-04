@@ -2,7 +2,6 @@
 const readline = require("readline");
 const { execSync } = require("child_process");
 const fs = require("fs");
-const rimraf = require("rimraf");
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -25,9 +24,15 @@ async function performGitOperations({
     const answer = await ask(
       `The directory '${repository}' already exists. Would you like to remove it and continue? [y/N]: `
     );
-
-    if (answer.toLowerCase() === "y") {
-      rimraf.sync(repoPath);
+  
+    if (answer.toLowerCase() === 'y') {
+      try {
+        fs.rmSync(repoPath, { recursive: true, force: true });
+        console.log(`The directory '${repository}' has been removed.`);
+      } catch (err) {
+        console.error(`Error while removing the directory: ${err}`);
+        process.exit(1);
+      }
     } else {
       console.log("Operation cancelled by the user.");
       process.exit(0);
