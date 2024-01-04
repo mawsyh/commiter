@@ -15,7 +15,7 @@ git clone git@github.com:mawsyh/commiter.git
 
 execute the following command in your terminal:
 ```bash
-node <script-name>.js
+node commiter.js
 ```
 
 You will be prompted to enter your GitHub credentials and desired date range:
