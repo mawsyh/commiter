@@ -63,13 +63,13 @@ async function performGitOperationsStochastic({
   const repoUrl = `https://${accessToken}@github.com/${username}/${repository}.git`;
   await performClone({ repository, repoPath, repoUrl });
   var weekDays = [
+    "saturday",
     "sunday",
     "monday",
     "tuesday",
     "wednesday",
     "thursday",
     "friday",
-    "saturday",
   ];
   for (
     let day = new Date(startDate);
