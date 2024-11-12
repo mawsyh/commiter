@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Calendar, Info } from "lucide-react"
+import { Calendar, Info, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,6 +30,7 @@ export default function Commiter() {
   const [isDragging, setIsDragging] = useState(false)
   const [username, setUsername] = useState("");
   const [accessToken, setAccessToken] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [repository, setRepository] = useState("");
 
   const isLeapYear = (year: number) => {
@@ -93,19 +94,20 @@ export default function Commiter() {
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true);
       const reqBody = {
         username,
         accessToken,
         repository,
         days: selectedDates,
       };
-
+      
       const response = await fetch("/api/commit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reqBody),
       });
-
+      
       if (response.ok) {
         alert("Commits successfully pushed to GitHub!");
       } else {
@@ -115,6 +117,8 @@ export default function Commiter() {
     } catch (error) {
       console.error("An error occurred:", error);
       alert("An error occurred. Please check the console for details.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -263,6 +267,7 @@ export default function Commiter() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Label htmlFor="token">Access Token</Label>
+                  <a href="https://github.com/settings/tokens?type=beta" target="_blank" className="text-[11px] underline">(make one)</a>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Info className="h-4 w-4 text-gray-400" />
@@ -273,7 +278,9 @@ export default function Commiter() {
                         <li>Go to GitHub Settings</li>
                         <li>Click on Developer settings</li>
                         <li>Select Personal access tokens</li>
-                        <li>Generate a new token</li>
+                        <li>Generate a new fine-grained token</li>
+                        <li>Select a new empty repository</li>
+                        <li>Grant content access</li>
                       </ol>
                     </TooltipContent>
                   </Tooltip>
@@ -285,7 +292,17 @@ export default function Commiter() {
                 <Input value={repository} onChange={(e) => setRepository(e.target.value)} placeholder="repository" className="bg-gray-900 border-gray-700 text-white" />
               </div>
               <Button onClick={handleSubmit} className="w-full bg-orange-500 hover:bg-orange-600">
-                <Calendar className="mr-2 h-4 w-4" /> Generate Commits
+                {isLoading ? (
+                  <>
+                    <Loader2 className="animate-spin-slow mr-2 h-4 w-4" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Generate Commits
+                  </>
+                )}
               </Button>
             </div>
           </section>

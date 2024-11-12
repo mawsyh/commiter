@@ -2,7 +2,7 @@ import { Github, Linkedin, Youtube, Presentation } from "lucide-react"
 
 export const Footer = () => {
     return (
-        <footer className="bg-orange-500 py-4">
+        <footer className="bg-orange-600 py-4">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <p className="text-white text-sm">&copy; {new Date().getFullYear()} Ryan Misaghi</p>
