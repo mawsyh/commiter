@@ -5,7 +5,6 @@ import { Calendar, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   Select,
   SelectContent,
@@ -20,17 +19,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { Footer } from "./_sections/footer"
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 const days = ["", "Mon", "", "Wed", "", "Fri", ""]
 
 export default function Commiter() {
-  const [mode, setMode] = useState("fix")
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [selectedDates, setSelectedDates] = useState<Record<string, number> | null>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
   const [username, setUsername] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [repository, setRepository] = useState("");
@@ -62,7 +59,7 @@ export default function Commiter() {
     setSelectedDates(prev => {
       const newDates = { ...prev }
       if (fullDate in newDates) {
-        if (newDates[fullDate] < 4) {
+        if (newDates[fullDate] < 9) {
           newDates[fullDate]++
         } else {
           delete newDates[fullDate]
@@ -94,40 +91,13 @@ export default function Commiter() {
     return Array.from({ length: currentYear - 1998 }, (_, i) => currentYear - i)
   }
 
-  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedDate = e.target.value
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    const yesterdayString = yesterday.toISOString().split('T')[0]
-
-    if (selectedDate <= yesterdayString) {
-      setStartDate(selectedDate)
-      if (endDate && selectedDate > endDate) {
-        setEndDate('')
-      }
-    }
-  }
-
-  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedDate = e.target.value
-    if (selectedDate > startDate) {
-      setEndDate(selectedDate)
-    }
-  }
-
   const handleSubmit = async () => {
     try {
       const reqBody = {
-        mode,
         username,
         accessToken,
         repository,
-        maxCommits: 4,
-        ratios: 0.5,
-        appearProbabilities: 0.5,
         days: selectedDates,
-        startDate,
-        endDate
       };
 
       const response = await fetch("/api/commit", {
@@ -150,10 +120,15 @@ export default function Commiter() {
 
   const getDateColor = (count: number) => {
     switch (count) {
-      case 1: return "bg-orange-300"
-      case 2: return "bg-orange-400"
-      case 3: return "bg-orange-500"
-      case 4: return "bg-orange-600"
+      case 1: return "bg-orange-200 bg-opacity-40"
+      case 2: return "bg-orange-200 bg-opacity-60"
+      case 3: return "bg-orange-300 bg-opacity-60"
+      case 4: return "bg-orange-400"
+      case 5: return "bg-orange-500"
+      case 6: return "bg-orange-600"
+      case 7: return "bg-orange-700"
+      case 8: return "bg-orange-800"
+      case 9: return "bg-orange-900"
       default: return "bg-gray-800"
     }
   }
@@ -175,44 +150,30 @@ export default function Commiter() {
         <main className="max-w-4xl mx-auto">
           <section className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <RadioGroup defaultValue="fix" value={mode} onValueChange={setMode} className="flex space-x-4">
-                <div className="flex items-center cursor-pointer space-x-2">
-                  <RadioGroupItem value="fix" id="fix" />
-                  <Label htmlFor="fix">Fix</Label>
-                </div>
-                <div className="flex items-center cursor-pointer space-x-2">
-                  <RadioGroupItem value="random" id="random" />
-                  <Label htmlFor="random">Random</Label>
-                </div>
-              </RadioGroup>
-              {mode === "fix" && (
-                <Select
-                  value={selectedYear.toString()}
-                  onValueChange={(value) => setSelectedYear(parseInt(value))}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getYearOptions().map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+              <Select
+                value={selectedYear.toString()}
+                onValueChange={(value) => setSelectedYear(parseInt(value))}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getYearOptions().map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div
-              className={cn(
-                "transition-all duration-300 ease-in-out overflow-hidden",
-                mode === "fix" ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-              )}
+              className=
+              "transition-all duration-300 ease-in-out overflow-hidden max-h-[500px] opacity-100"
             >
               <div className="bg-gray-950/30 rounded-lg p-4 border border-gray-800">
                 <div className="flex">
-                <div className="grid grid-rows-7 gap-1 text-xs text-gray-400 pr-2 mt-6">
+                  <div className="grid grid-rows-7 gap-1 text-xs text-gray-400 pr-2 mt-6">
                     {days.map((day, index) => (
                       <div key={index} className="h-[10px] leading-[10px]">{day}</div>
                     ))}
@@ -240,7 +201,7 @@ export default function Commiter() {
                         const isCurrentYear = selectedYear === new Date().getFullYear()
                         const isInFuture = isCurrentYear && dayOfYear > getCurrentDayOfYear()
                         const fullDate = formatDate(selectedYear, dayOfYear)
-                        const clickCount = selectedDates && [fullDate]  ? selectedDates[fullDate] : 0
+                        const clickCount = selectedDates && [fullDate] ? selectedDates[fullDate] : 0
 
                         return (
                           <Tooltip key={index}>
@@ -278,47 +239,15 @@ export default function Commiter() {
                         className={cn(
                           "w-[10px] h-[10px] rounded-sm",
                           i === 0 && "bg-gray-800",
-                          i === 1 && "bg-orange-900",
-                          i === 2 && "bg-orange-700",
-                          i === 3 && "bg-orange-500",
-                          i === 4 && "bg-orange-400"
+                          i === 1 && "bg-orange-200 bg-opacity-40",
+                          i === 2 && "bg-orange-400",
+                          i === 3 && "bg-orange-700",
+                          i === 4 && "bg-orange-900"
                         )}
                       />
                     ))}
                   </div>
                   <span>More</span>
-                </div>
-              </div>
-            </div>
-
-            <div
-              className={cn(
-                "transition-all duration-300 ease-in-out overflow-hidden",
-                mode === "random" ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-              )}
-            >
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="startDate">Start Date</Label>
-                  <Input
-                    id="startDate"
-                    type="date"
-                    value={startDate}
-                    onChange={handleStartDateChange}
-                    max={new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0]}
-                    className="bg-gray-900 border-gray-700 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="endDate">End Date</Label>
-                  <Input
-                    id="endDate"
-                    type="date"
-                    value={endDate}
-                    onChange={handleEndDateChange}
-                    min={startDate}
-                    className="bg-gray-900 border-gray-700 text-white"
-                  />
                 </div>
               </div>
             </div>
@@ -362,6 +291,7 @@ export default function Commiter() {
           </section>
         </main>
       </div>
+      <Footer />
     </TooltipProvider>
   )
 }
