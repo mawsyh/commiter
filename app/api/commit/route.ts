@@ -21,15 +21,9 @@ export async function POST(req: NextRequest) {
     const body: CommitRequestBody = await req.json();
 
     const {
-      mode,
       username,
       accessToken,
       repository,
-      startDate,
-      endDate,
-      maxCommits,
-      ratios,
-      appearProbabilities,
       days,
     } = body;
 
@@ -38,16 +32,6 @@ export async function POST(req: NextRequest) {
       Math.floor(Math.random() * 60)
         .toString()
         .padStart(2, "0");
-
-    const getRandomNormalDistribution = (
-      mean: number,
-      standardDeviation: number
-    ): number => {
-      const u = 1 - Math.random();
-      const v = Math.random();
-      const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-      return z * standardDeviation + mean;
-    };
 
     const performClone = (repoPath: string, repoUrl: string) => {
       if (fs.existsSync(repoPath)) {
@@ -79,57 +63,18 @@ export async function POST(req: NextRequest) {
       }); // Append mode
       execSync(`git add .`, { cwd: repoPath });
       execSync(`git commit -m "${uniqueContent}"`, { cwd: repoPath, env });
-      console.log("commit success" + uniqueContent);
     };
 
     const repoPath = path.join(process.cwd(), repository);
     const repoUrl = `https://${accessToken}@github.com/${username}/${repository}.git`;
 
     performClone(repoPath, repoUrl);
-    console.log(mode);
-    if (mode === "fix") {
-      for (const [dateString, commitCount] of Object.entries(days)) {
-        const day = new Date(dateString);
+    for (const [dateString, commitCount] of Object.entries(days)) {
+      const day = new Date(dateString);
 
-        for (let i = 0; i < commitCount; i++) {
-          const commitMessage = `Committed on ${dateString}`;
-          performCommit(repoPath, day, commitMessage);
-        }
-      }
-    } else if (mode === "random") {
-      const weekDays = [
-        "sunday",
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday",
-      ] as const;
-      console.log({ startDate, endDate });
-      for (
-        let day = new Date(startDate);
-        day <= new Date(endDate);
-        day.setDate(day.getDate() + 1)
-      ) {
-        console.log("day", day);
-        const dayOfWeek = weekDays[day.getDay()];
-        const appearProbability = appearProbabilities[dayOfWeek];
-        if (Math.random() <= appearProbability) {
-          const ratioRandom = getRandomNormalDistribution(
-            ratios[dayOfWeek],
-            0.3
-          );
-          const numCommits = Math.floor(ratioRandom * maxCommits);
-          console.log("numCommits", numCommits);
-          for (let i = 0; i < numCommits; i++) {
-            const commitMessage = `Committed on ${
-              day.toISOString().split("T")[0]
-            }`;
-            console.log("commitMessage", commitMessage);
-            performCommit(repoPath, day, commitMessage);
-          }
-        }
+      for (let i = 0; i < commitCount; i++) {
+        const commitMessage = `Committed on ${dateString}`;
+        performCommit(repoPath, day, commitMessage);
       }
     }
 
