@@ -253,7 +253,7 @@ export default function Commiter() {
             </div>
           </section>
 
-          <section>
+          <section className="mb-4">
             <h2 className="text-2xl font-semibold mb-4">Configuration</h2>
             <div className="space-y-4">
               <div className="space-y-2">
