@@ -5,7 +5,9 @@ export const Footer = () => {
         <footer className="bg-orange-600 py-4">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <p className="text-white text-sm">&copy; {new Date().getFullYear()} Ryan Misaghi</p>
+              <p className="text-white text-sm">&copy; {new Date().getFullYear()} 
+                <a className="underline" target="_blank" href="https://www.misaqi.com/"> Ryan Misaghi</a>
+              </p>
               <div className="flex space-x-6">
                 <a href="https://www.misaqi.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-orange-200 transition-colors">
                   <Presentation size={20} />

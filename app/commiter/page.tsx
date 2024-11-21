@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Calendar, Info, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { Footer } from "./_sections/footer"
+import { toast } from "@/hooks/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 const days = ["", "Mon", "", "Wed", "", "Fri", ""]
@@ -32,6 +34,13 @@ export default function Commiter() {
   const [accessToken, setAccessToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [repository, setRepository] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+
+  useEffect(() => {
+    if (showAlert) {
+      setTimeout(() => setShowAlert(false), 5000)
+    }
+  }, [showAlert])
 
   const isLeapYear = (year: number) => {
     return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0)
@@ -50,8 +59,8 @@ export default function Commiter() {
   }
 
   const formatDate = (year: number, dayOfYear: number) => {
-    const date = new Date(year, 0)
-    date.setDate(dayOfYear)
+    const date = new Date(Date.UTC(year, 0));
+    date.setUTCDate(dayOfYear);
     return date.toISOString().split('T')[0];
   }
 
@@ -101,18 +110,27 @@ export default function Commiter() {
         repository,
         days: selectedDates,
       };
-      
+
       const response = await fetch("/api/commit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reqBody),
       });
-      
+
       if (response.ok) {
-        alert("Commits successfully pushed to GitHub!");
+        toast({
+          title: "Commits successfully pushed to GitHub!",
+          description: "Click on the profile button to check the result of the commit process",
+          action: <ToastAction altText="Check your profile">
+            <a target="_blank" href={'https://github.com/' + username}>Profile</a>
+          </ToastAction>,
+        })
       } else {
         const { error } = await response.json();
-        alert("Error: " + error);
+        toast({
+          title: "Something went wrong!",
+          description: error,
+        })
       }
     } catch (error) {
       console.error("An error occurred:", error);
@@ -143,10 +161,12 @@ export default function Commiter() {
         <header className="mb-8 text-center">
           <h1 className="text-4xl font-bold mb-4">Commiter</h1>
           <div className="w-full max-w-2xl mx-auto bg-gray-800 rounded-lg overflow-hidden">
-            <img
-              src="/placeholder.svg?height=200&width=500"
-              alt="How Commiter works"
-              className="w-full h-40 object-cover"
+            <video
+              loop
+              autoPlay
+              muted
+              src="/howto.mp4"
+              className="w-full h-full object-cover"
             />
           </div>
         </header>
@@ -173,9 +193,9 @@ export default function Commiter() {
 
             <div
               className=
-              "transition-all duration-300 ease-in-out overflow-hidden max-h-[500px] opacity-100"
+              "overflow-scroll transition-all duration-300 ease-in-out max-h-[500px] opacity-100"
             >
-              <div className="bg-gray-950/30 rounded-lg p-4 border border-gray-800">
+              <div className="bg-gray-950/30 rounded-lg p-4 border border-gray-800 min-w-[760px]">
                 <div className="flex">
                   <div className="grid grid-rows-7 gap-1 text-xs text-gray-400 pr-2 mt-6">
                     {days.map((day, index) => (
@@ -196,41 +216,62 @@ export default function Commiter() {
                       className="grid grid-cols-[repeat(51,minmax(0,1fr))] grid-rows-7 gap-1"
                       onMouseLeave={handleMouseUp}
                     >
-                      {[...Array(getDaysInYear(selectedYear))].map((_, index) => {
-                        const dayOfYear = index + 1
-                        const date = new Date(selectedYear, 0)
-                        date.setDate(dayOfYear)
-                        const dayOfWeek = date.getDay()
-                        const weekNumber = Math.floor(index / 7)
-                        const isCurrentYear = selectedYear === new Date().getFullYear()
-                        const isInFuture = isCurrentYear && dayOfYear > getCurrentDayOfYear()
-                        const fullDate = formatDate(selectedYear, dayOfYear)
-                        const clickCount = selectedDates && [fullDate] ? selectedDates[fullDate] : 0
+                      {(() => {
+                        const cells = [];
+                        const firstDayOfYear = new Date(Date.UTC(selectedYear, 0, 1));
+                        const firstDayOffset = firstDayOfYear.getUTCDay(); // Use UTC day
 
-                        return (
-                          <Tooltip key={index}>
-                            <TooltipTrigger asChild>
-                              <div
-                                className={cn(
-                                  "w-[10px] h-[10px] rounded-sm cursor-pointer transition-colors",
-                                  getDateColor(clickCount),
-                                  !isInFuture && "hover:ring-2 hover:ring-gray-500"
-                                )}
-                                style={{
-                                  gridColumn: weekNumber + 1,
-                                  gridRow: dayOfWeek === 0 ? 7 : dayOfWeek,
-                                }}
-                                onMouseDown={() => !isInFuture && handleMouseDown(dayOfYear)}
-                                onMouseEnter={() => !isInFuture && handleMouseEnter(dayOfYear)}
-                                onMouseUp={handleMouseUp}
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{fullDate} (Clicks: {clickCount})</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )
-                      })}
+                        // Add empty cells for days before January 1st
+                        for (let i = 0; i < firstDayOffset; i++) {
+                          cells.push(
+                            <div
+                              key={`empty-${i}`}
+                              className="w-[10px] h-[10px] rounded-sm bg-transparent"
+                              style={{
+                                gridColumn: 1,
+                                gridRow: i + 1,
+                              }}
+                            />
+                          );
+                        }
+
+                        // Add cells for actual days in the year
+                        for (let dayOfYear = 1; dayOfYear <= getDaysInYear(selectedYear); dayOfYear++) {
+                          const date = formatDate(selectedYear, dayOfYear);
+                          const currentDate = new Date(date + 'T00:00:00.000Z'); // Force UTC
+                          const dayOfWeek = currentDate.getUTCDay();
+                          const weekNumber = Math.floor((dayOfYear + firstDayOffset - 1) / 7);
+                          const isCurrentYear = selectedYear === new Date().getUTCFullYear();
+                          const isInFuture = isCurrentYear && dayOfYear > getCurrentDayOfYear();
+                          const clickCount = selectedDates && date in selectedDates ? selectedDates[date] : 0;
+
+                          cells.push(
+                            <Tooltip key={dayOfYear}>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className={cn(
+                                    "w-[10px] h-[10px] rounded-sm cursor-pointer transition-colors",
+                                    getDateColor(clickCount),
+                                    !isInFuture && "hover:ring-2 hover:ring-gray-500"
+                                  )}
+                                  style={{
+                                    gridColumn: weekNumber + 1,
+                                    gridRow: dayOfWeek + 1,
+                                  }}
+                                  onMouseDown={() => !isInFuture && handleMouseDown(dayOfYear)}
+                                  onMouseEnter={() => !isInFuture && handleMouseEnter(dayOfYear)}
+                                  onMouseUp={handleMouseUp}
+                                />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{date} (Commits: {clickCount})</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        }
+
+                        return cells;
+                      })()}
                     </div>
                   </div>
                 </div>
