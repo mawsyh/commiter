@@ -17,15 +17,10 @@ type CommitRequestBody = {
 };
 
 export async function POST(req: NextRequest) {
+  const body: CommitRequestBody = await req.json();
+  const repoPath = path.join(process.cwd(), body.repository); // Move it to the top for global usage
   try {
-    const body: CommitRequestBody = await req.json();
-
-    const {
-      username,
-      accessToken,
-      repository,
-      days,
-    } = body;
+    const { username, accessToken, repository, days } = body;
 
     // Helper functions
     const randomNumber0to59 = (): string =>
@@ -38,7 +33,7 @@ export async function POST(req: NextRequest) {
         fs.rmSync(repoPath, { recursive: true, force: true });
       }
       execSync(
-        `git clone --depth 1 --filter=blob:none --no-checkout ${repoUrl} ${repoPath}`
+        `git clone --depth 1 --filter=blob:none --no-checkout "${repoUrl}" "${repoPath}"`
       );
     };
 
@@ -56,11 +51,10 @@ export async function POST(req: NextRequest) {
         GIT_COMMITTER_DATE: formattedDate,
       };
 
-      // Write unique content to README.md to ensure a change
       const uniqueContent = `${commitMessage} ${formattedDate}`;
       fs.writeFileSync(path.join(repoPath, "README22.md"), uniqueContent, {
         flag: "a",
-      }); // Append mode
+      }); 
       execSync(`git add .`, { cwd: repoPath });
       execSync(`git commit -m "${uniqueContent}"`, { cwd: repoPath, env });
     };
@@ -78,10 +72,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Push to GitHub
+    
     execSync("git push --verbose", {
       cwd: repoPath,
     });
+
+    fs.rmSync(repoPath, { recursive: true, force: true });
 
     return NextResponse.json(
       { message: "Commits successfully pushed to GitHub!" },
@@ -89,6 +85,10 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.log("error:", error);
+
+    if (fs.existsSync(repoPath)) {
+      fs.rmSync(repoPath, { recursive: true, force: true });
+    }
     return NextResponse.json({ error: `An error occurred: ` }, { status: 500 });
   }
 }
