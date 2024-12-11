@@ -18,11 +18,10 @@ type CommitRequestBody = {
 
 export async function POST(req: NextRequest) {
   const body: CommitRequestBody = await req.json();
-  const repoPath = path.join(process.cwd(), body.repository); // Move it to the top for global usage
+  const repoPath = path.join(process.cwd(), body.repository);
   try {
     const { username, accessToken, repository, days } = body;
 
-    // Helper functions
     const randomNumber0to59 = (): string =>
       Math.floor(Math.random() * 60)
         .toString()
