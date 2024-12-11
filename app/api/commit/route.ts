@@ -36,6 +36,14 @@ export async function POST(req: NextRequest) {
       );
     };
 
+    const setGitConfig = (repoPath: string, username: string) => {
+      execSync(`git config user.name "${username}"`, { cwd: repoPath });
+      execSync(
+        `git config user.email "${username}@users.noreply.github.com"`,
+        { cwd: repoPath }
+      );
+    };
+
     const performCommit = (
       repoPath: string,
       day: Date,
@@ -48,10 +56,6 @@ export async function POST(req: NextRequest) {
         ...process.env,
         GIT_AUTHOR_DATE: formattedDate,
         GIT_COMMITTER_DATE: formattedDate,
-        GIT_AUTHOR_NAME: username,
-        GIT_AUTHOR_EMAIL: `${username}@users.noreply.github.com`,
-        GIT_COMMITTER_NAME: username,
-        GIT_COMMITTER_EMAIL: `${username}@users.noreply.github.com`,
       };
 
       const uniqueContent = `${commitMessage} ${formattedDate}`;
@@ -66,6 +70,7 @@ export async function POST(req: NextRequest) {
     const repoUrl = `https://${accessToken}@github.com/${username}/${repository}.git`;
 
     performClone(repoPath, repoUrl);
+    setGitConfig(repoPath, username);
     for (const [dateString, commitCount] of Object.entries(days)) {
       const day = new Date(dateString);
 
