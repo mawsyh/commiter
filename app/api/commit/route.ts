@@ -48,6 +48,10 @@ export async function POST(req: NextRequest) {
         ...process.env,
         GIT_AUTHOR_DATE: formattedDate,
         GIT_COMMITTER_DATE: formattedDate,
+        GIT_AUTHOR_NAME: username,
+        GIT_AUTHOR_EMAIL: `${username}@users.noreply.github.com`,
+        GIT_COMMITTER_NAME: username,
+        GIT_COMMITTER_EMAIL: `${username}@users.noreply.github.com`,
       };
 
       const uniqueContent = `${commitMessage} ${formattedDate}`;
