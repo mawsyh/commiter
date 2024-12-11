@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
 
     performClone(repoPath, repoUrl);
     setGitConfig(repoPath, username);
+    execSync(`git config --list`, { cwd: repoPath, stdio: "inherit" });
     for (const [dateString, commitCount] of Object.entries(days)) {
       const day = new Date(dateString);
 
